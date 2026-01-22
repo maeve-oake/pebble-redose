@@ -23,12 +23,39 @@ static void prv_window_load(Window* window) {
   text_layer_set_text_alignment(s_text_layer, GTextAlignmentCenter);
   text_layer_set_font(s_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   layer_add_child(window_layer, text_layer_get_layer(s_text_layer));
-
-  prv_exit_delay();
 }
 
 static void prv_window_unload(Window* window) {
   text_layer_destroy(s_text_layer);
+}
+
+// https://developer.repebble.com/guides/user-interfaces/appglance-c/
+
+static void prv_update_app_glance(AppGlanceReloadSession* session, size_t limit, void* context) {
+  // Check we haven't exceeded system limit of AppGlance's
+  if (limit < 1) return;
+
+  const char* subtitle = (const char*)context;
+  char str[50];
+  snprintf(str, sizeof str, "%s", subtitle);
+
+  // Create the AppGlanceSlice (no icon, no expiry)
+  AppGlanceSlice entry = (AppGlanceSlice){
+    .layout = {
+      .subtitle_template_string = "miaow"
+    },
+    .expiration_time = time(NULL) + 3600
+  };
+
+  time_t now = time(NULL);
+  APP_LOG(APP_LOG_LEVEL_INFO, "now=%ld", (long)now);
+  entry.expiration_time = now + 3600;
+
+  // Add the slice, and check the result
+  const AppGlanceResult result = app_glance_add_slice(session, entry);
+  if (result != APP_GLANCE_RESULT_SUCCESS) {
+    APP_LOG(APP_LOG_LEVEL_ERROR, "AppGlance Error: %d", result);
+  }
 }
 
 static void prv_init(void) {
@@ -39,10 +66,13 @@ static void prv_init(void) {
       .unload = prv_window_unload,
   });
   window_stack_push(s_window, false);
+
+  prv_exit_delay();
 }
 
 static void prv_deinit(void) {
   window_destroy(s_window);
+  app_glance_reload(prv_update_app_glance, "miaow");
 }
 
 int main(void) {
