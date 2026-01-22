@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "Emery",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${HOME}/.pebble-sdk/SDKs/4.9.77/sdk-core/pebble/emery/include/**"
+            ],
+            "defines": [],
+            "compilerPath": "${HOME}/.pebble-sdk/SDKs/4.9.77/toolchain/arm-none-eabi/bin/arm-none-eabi-gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++11",
+            "intelliSenseMode": "linux-gcc-arm"
+        }
+    ],
+    "version": 4
+}

@@ -1,0 +1,7 @@
+.DS_Store
+.direnv
+
+.lock-waf*
+build
+
+result
