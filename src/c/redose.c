@@ -36,16 +36,15 @@ static void prv_update_app_glance(AppGlanceReloadSession* session, size_t limit,
   if (limit < 1) return;
 
   const char* subtitle = (const char*)context;
-  char str[50];
-  snprintf(str, sizeof str, "%s", subtitle);
   APP_LOG(APP_LOG_LEVEL_INFO, "STATE: %s", subtitle);
+  APP_LOG(APP_LOG_LEVEL_INFO, "now=%ld", (long)time(NULL));
 
   // Create the AppGlanceSlice (no icon, no expiry)
   AppGlanceSlice entry = (AppGlanceSlice){
     .layout = {
       .subtitle_template_string = subtitle
     },
-    .expiration_time = time(NULL) + 3600
+    .expiration_time = APP_GLANCE_SLICE_NO_EXPIRATION
   };
 
   // Add the slice, and check the result
@@ -64,12 +63,13 @@ static void prv_init(void) {
   });
   window_stack_push(s_window, false);
 
+  app_glance_reload(prv_update_app_glance, "miaow");
+
   prv_exit_delay();
 }
 
 static void prv_deinit(void) {
   window_destroy(s_window);
-  app_glance_reload(prv_update_app_glance, "miaow");
 }
 
 int main(void) {
