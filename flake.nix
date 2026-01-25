@@ -1,7 +1,7 @@
 {
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
-    pebble.url = "github:anna-oake/pebble.nix";
+    pebble.url = "github:anna-oake/pebble.nix/sdk-core";
   };
 
   outputs =

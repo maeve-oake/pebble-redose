@@ -1,4 +1,19 @@
 #include <pebble.h>
+#define NUM_STATES 4
+
+const long ritalin_duration[NUM_STATES] = {
+  2400, // 40m onset
+  4800, // + 40m come-up
+  11100, // + 1hr 45m peak
+  15600 // + 1hr 15m comedown
+};
+
+const char* messages[NUM_STATES] = {
+  "onset",
+  "come-up",
+  "peak",
+  "come-down"
+};
 
 static Window* s_window;
 static TextLayer* s_text_layer;
@@ -17,9 +32,11 @@ static void prv_exit_delay() {
 static void prv_window_load(Window* window) {
   Layer* window_layer = window_get_root_layer(window);
   GRect bounds = layer_get_bounds(window_layer);
+  window_set_background_color(window, GColorVividCerulean);
 
-  s_text_layer = text_layer_create(GRect(0, (bounds.size.h / 2) - 30, bounds.size.w, 60));
-  text_layer_set_text(s_text_layer, "miaows at u");
+  s_text_layer = text_layer_create(GRect(0, (bounds.size.h / 2), bounds.size.w, 30));
+  text_layer_set_text(s_text_layer, "redosed ritalin!");
+  text_layer_set_background_color(s_text_layer, GColorClear);
   text_layer_set_text_alignment(s_text_layer, GTextAlignmentCenter);
   text_layer_set_font(s_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   layer_add_child(window_layer, text_layer_get_layer(s_text_layer));
@@ -35,22 +52,25 @@ static void prv_update_app_glance(AppGlanceReloadSession* session, size_t limit,
   // Check we haven't exceeded system limit of AppGlance's
   if (limit < 1) return;
 
-  const char* subtitle = (const char*)context;
-  APP_LOG(APP_LOG_LEVEL_INFO, "STATE: %s", subtitle);
-  APP_LOG(APP_LOG_LEVEL_INFO, "now=%ld", (long)time(NULL));
+  time_t expiration_time = time(NULL);
 
-  // Create the AppGlanceSlice (no icon, no expiry)
-  AppGlanceSlice entry = (AppGlanceSlice){
-    .layout = {
-      .subtitle_template_string = subtitle
-    },
-    .expiration_time = APP_GLANCE_SLICE_NO_EXPIRATION
-  };
+  // iterate through ritalin durations
+  for (int i = 0; i < NUM_STATES; i++) {
+    char subtitle[64];
+    snprintf(subtitle, sizeof subtitle, "%s {time_until(%ld)|format('%%aT')}", messages[i], expiration_time + ritalin_duration[i]);
 
-  // Add the slice, and check the result
-  const AppGlanceResult result = app_glance_add_slice(session, entry);
-  if (result != APP_GLANCE_RESULT_SUCCESS) {
-    APP_LOG(APP_LOG_LEVEL_ERROR, "AppGlance Error: %d", result);
+    AppGlanceSlice entry = (AppGlanceSlice){
+      .layout = {
+        .subtitle_template_string = subtitle
+      },
+      .expiration_time = expiration_time + ritalin_duration[i]
+    };
+
+    // Add the slice, and check the result
+    const AppGlanceResult result = app_glance_add_slice(session, entry);
+    if (result != APP_GLANCE_RESULT_SUCCESS) {
+      APP_LOG(APP_LOG_LEVEL_ERROR, "AppGlance Error: %d", result);
+    }
   }
 }
 
@@ -63,7 +83,7 @@ static void prv_init(void) {
   });
   window_stack_push(s_window, false);
 
-  app_glance_reload(prv_update_app_glance, "miaow");
+  app_glance_reload(prv_update_app_glance, NULL);
 
   prv_exit_delay();
 }
