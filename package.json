@@ -13,7 +13,9 @@
     "sdkVersion": "3",
     "enableMultiJS": true,
     "targetPlatforms": [
-      "emery"
+      "emery",
+      "gabbro",
+      "chalk"
     ],
     "watchapp": {
       "watchface": false
@@ -22,7 +24,13 @@
       "dummy"
     ],
     "resources": {
-      "media": []
+      "media": [
+        {
+          "type": "raw",
+          "name": "CLOCK_SEQUENCE",
+          "file": "clock_sequence.pdc"
+        }
+      ]
     }
   }
 }
