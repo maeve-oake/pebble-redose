@@ -32,7 +32,7 @@ static GDrawCommandSequence* s_command_seq;
 // }
 
 // ms between frames
-#define DELTA 25
+#define DELTA 30 
 static int s_index = 0;
 
 static void update_proc(Layer* layer, GContext* ctx) {
@@ -64,7 +64,7 @@ static void window_load(Window* window) {
   text_layer_set_font(s_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD));
   layer_add_child(window_layer, text_layer_get_layer(s_text_layer));
 
-  s_canvas_layer = layer_create(GRect(30, 30, bounds.size.w, bounds.size.h));
+  s_canvas_layer = layer_create(GRect((bounds.size.w / 3), 0, bounds.size.w, bounds.size.h));
   layer_set_update_proc(s_canvas_layer, update_proc);
   layer_add_child(window_layer, s_canvas_layer);
 }
